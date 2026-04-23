@@ -1,1 +1,77 @@
-/* Add styles here */
+
+body {
+    font-family: 'Nanum Myeongjo', serif;
+    background-color: #FDF5E6; /* Cream */
+    color: #333;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    padding: 40px 0;
+}
+
+header h1 {
+    font-size: 2.5em;
+    color: #DAA520; /* Gold */
+}
+
+header .date {
+    font-size: 1.2em;
+}
+
+section {
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+}
+
+section:last-child {
+    border-bottom: none;
+}
+
+h2 {
+    font-size: 1.8em;
+    color: #DAA520; /* Gold */
+    margin-bottom: 20px;
+}
+
+.names {
+    font-size: 1.5em;
+    font-weight: 700;
+}
+
+/* Photo Gallery placeholder */
+photo-gallery {
+    display: block;
+    min-height: 200px;
+    background-color: #eee;
+    border-radius: 8px;
+}
+
+/* Simple animation */
+.invitation p {
+    animation: fadeIn 2s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    header h1 {
+        font-size: 2em;
+    }
+
+    h2 {
+        font-size: 1.5em;
+    }
+}
