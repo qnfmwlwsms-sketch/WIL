@@ -50,3 +50,26 @@ class PhotoGallery extends HTMLElement {
 }
 
 customElements.define('photo-gallery', PhotoGallery);
+
+// 계좌번호 복사 기능
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        alert('계좌번호가 복사되었습니다: ' + text);
+    }).catch(err => {
+        console.error('복사 실패:', err);
+        alert('복사에 실패했습니다. 다시 시도해주세요.');
+    });
+}
+
+// 다크모드 토글 기능
+function toggleTheme() {
+    const body = document.body;
+    body.classList.toggle('dark-theme');
+    
+    const themeBtn = document.getElementById('theme-toggle');
+    if (body.classList.contains('dark-theme')) {
+        themeBtn.textContent = '☀️ 라이트 모드';
+    } else {
+        themeBtn.textContent = '🌙 다크 모드';
+    }
+}

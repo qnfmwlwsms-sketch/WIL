@@ -1,17 +1,45 @@
 
 body {
     font-family: 'Nanum Myeongjo', serif;
-    background-color: #FDF5E6; /* Cream */
-    color: #333;
+    background-color: var(--bg-color, #FDF5E6);
+    color: var(--text-color, #333);
     margin: 0;
     padding: 0;
     text-align: center;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark-theme {
+    --bg-color: #1a1a1a;
+    --text-color: #f0f0f0;
+    --section-border: #333;
+    --account-bg: #2a2a2a;
 }
 
 .container {
     max-width: 600px;
     margin: 0 auto;
     padding: 20px;
+    position: relative;
+}
+
+.theme-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: transparent;
+    border: 1px solid var(--text-color, #333);
+    color: var(--text-color, #333);
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.3s;
+}
+
+.theme-btn:hover {
+    background-color: var(--text-color, #333);
+    color: var(--bg-color, #FDF5E6);
 }
 
 header {
@@ -29,7 +57,7 @@ header .date {
 
 section {
     padding: 20px 0;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--section-border, #eee);
 }
 
 section:last-child {
@@ -74,4 +102,28 @@ photo-gallery {
     h2 {
         font-size: 1.5em;
     }
+}
+
+.account-box {
+    background-color: var(--account-bg, #fff);
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.copy-btn {
+    background-color: #DAA520;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+.copy-btn:hover {
+    background-color: #B8860B;
 }

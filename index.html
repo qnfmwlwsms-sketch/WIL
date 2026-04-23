@@ -12,6 +12,7 @@
 </head>
 <body>
     <div class="container">
+        <button id="theme-toggle" class="theme-btn" onclick="toggleTheme()">🌙 다크 모드</button>
         <header>
             <h1>우리의 결혼식에 초대합니다</h1>
             <p class="date">2024년 10월 26일</p>
@@ -39,6 +40,18 @@
             <h2>연락처</h2>
             <p>신랑: 010-1234-5678</p>
             <p>신부: 010-8765-4321</p>
+        </section>
+
+        <section class="bank-account">
+            <h2>마음 전하실 곳</h2>
+            <div class="account-box">
+                <p><strong>신랑 측:</strong> 국민은행 123456-78-901234 (김철수)</p>
+                <button class="copy-btn" onclick="copyToClipboard('12345678901234')">계좌번호 복사</button>
+            </div>
+            <div class="account-box">
+                <p><strong>신부 측:</strong> 신한은행 110-123-456789 (이영희)</p>
+                <button class="copy-btn" onclick="copyToClipboard('110123456789')">계좌번호 복사</button>
+            </div>
         </section>
     </div>
     <script src="main.js"></script>
