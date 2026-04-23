@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>모바일 청첩장 제작 스튜디오</title>
+    <title>프리미엄 모바일 청첩장 스튜디오</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,117 +15,238 @@
         <!-- 좌측: 제작 폼 (에디터) -->
         <aside class="editor-panel">
             <div class="editor-header">
-                <h2>청첩장 만들기</h2>
+                <h2><i class="fas fa-magic"></i> 청첩장 스튜디오</h2>
                 <button id="export-btn" class="primary-btn"><i class="fas fa-download"></i> 완성 및 저장</button>
             </div>
             
             <div class="editor-body">
                 <!-- 기본 정보 -->
-                <div class="form-group">
-                    <h3><i class="fas fa-info-circle"></i> 기본 정보</h3>
-                    <label>신랑 이름 <input type="text" id="input-groom-name" value="김서진"></label>
-                    <label>신부 이름 <input type="text" id="input-bride-name" value="이채연"></label>
-                    <label>메인 사진 업로드 <input type="file" id="input-main-photo" accept="image/*"></label>
+                <div class="form-group active">
+                    <div class="form-group-header" onclick="toggleFormGroup(this)">
+                        <h3><i class="fas fa-heart"></i> 기본 정보</h3>
+                        <i class="fas fa-chevron-down chevron"></i>
+                    </div>
+                    <div class="form-group-content">
+                        <label>신랑 이름 <input type="text" id="input-groom-name" value="이몽룡"></label>
+                        <label>신부 이름 <input type="text" id="input-bride-name" value="성춘향"></label>
+                        <label>메인 사진 URL <input type="url" id="input-main-photo-url" value="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80"></label>
+                        <p style="font-size: 0.75em; color: #999; margin-top: 5px;">* 디자인 중심형에서는 고화질 외부 링크를 권장합니다.</p>
+                    </div>
                 </div>
 
                 <!-- 예식 일시 -->
                 <div class="form-group">
-                    <h3><i class="fas fa-calendar-alt"></i> 예식 일시</h3>
-                    <label>날짜 및 시간 
-                        <input type="datetime-local" id="input-datetime" value="2026-04-25T14:00">
-                    </label>
-                    <label>표시될 텍스트 <input type="text" id="input-date-text" value="2026. 04. 25. SAT PM 2:00"></label>
+                    <div class="form-group-header" onclick="toggleFormGroup(this)">
+                        <h3><i class="fas fa-calendar-alt"></i> 예식 일시</h3>
+                        <i class="fas fa-chevron-down chevron"></i>
+                    </div>
+                    <div class="form-group-content">
+                        <label>날짜 및 시간 <input type="datetime-local" id="input-datetime" value="2026-05-10T12:00"></label>
+                        <label>표시될 텍스트 <input type="text" id="input-date-text" value="2026. 05. 10. SUN PM 12:00"></label>
+                    </div>
                 </div>
 
                 <!-- 인사말 -->
                 <div class="form-group">
-                    <h3><i class="fas fa-comment-dots"></i> 인사말</h3>
-                    <label>초대 문구
-                        <textarea id="input-greeting" rows="4">서로가 마주보며 다져온 사랑을
+                    <div class="form-group-header" onclick="toggleFormGroup(this)">
+                        <h3><i class="fas fa-comment-dots"></i> 인사말</h3>
+                        <i class="fas fa-chevron-down chevron"></i>
+                    </div>
+                    <div class="form-group-content">
+                        <label>초대 문구
+                            <textarea id="input-greeting" rows="6">서로가 마주보며 다져온 사랑을
 이제 함께 한 곳을 바라보며
 걸어갈 수 있는 큰 사랑으로 키우고자 합니다.
 
 저희 두 사람이 사랑의 이름으로
 지켜나갈 수 있게 앞날을
 축복해 주시면 감사하겠습니다.</textarea>
-                    </label>
+                        </label>
+                    </div>
                 </div>
 
                 <!-- 혼주 정보 -->
                 <div class="form-group">
-                    <h3><i class="fas fa-user-friends"></i> 가족 정보</h3>
-                    <label>신랑 측 혼주 <input type="text" id="input-groom-parents" value="김재술 · 오정애"></label>
-                    <label>신랑 관계 <input type="text" id="input-groom-relation" value="장남"></label>
-                    <hr class="divider">
-                    <label>신부 측 혼주 <input type="text" id="input-bride-parents" value="이승학 · 임희경"></label>
-                    <label>신부 관계 <input type="text" id="input-bride-relation" value="장녀"></label>
+                    <div class="form-group-header" onclick="toggleFormGroup(this)">
+                        <h3><i class="fas fa-user-friends"></i> 가족 정보</h3>
+                        <i class="fas fa-chevron-down chevron"></i>
+                    </div>
+                    <div class="form-group-content">
+                        <label>신랑 측 혼주 <input type="text" id="input-groom-parents" value="이사또 · 김씨부인"></label>
+                        <label>신랑 관계 <input type="text" id="input-groom-relation" value="장남"></label>
+                        <hr class="divider">
+                        <label>신부 측 혼주 <input type="text" id="input-bride-parents" value="성참판 · 월매"></label>
+                        <label>신부 관계 <input type="text" id="input-bride-relation" value="장녀"></label>
+                    </div>
+                </div>
+
+                <!-- 갤러리 -->
+                <div class="form-group">
+                    <div class="form-group-header" onclick="toggleFormGroup(this)">
+                        <h3><i class="fas fa-images"></i> 갤러리 설정</h3>
+                        <i class="fas fa-chevron-down chevron"></i>
+                    </div>
+                    <div class="form-group-content" id="gallery-inputs">
+                        <div class="item-row">
+                            <input type="url" class="gallery-url" value="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=400&q=80">
+                            <button class="btn-remove" onclick="removeItem(this)">×</button>
+                        </div>
+                        <div class="item-row">
+                            <input type="url" class="gallery-url" value="https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=400&q=80">
+                            <button class="btn-remove" onclick="removeItem(this)">×</button>
+                        </div>
+                        <div class="item-row">
+                            <input type="url" class="gallery-url" value="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=400&q=80">
+                            <button class="btn-remove" onclick="removeItem(this)">×</button>
+                        </div>
+                        <button class="btn-add-item" onclick="addGalleryInput()"><i class="fas fa-plus"></i> 사진 추가</button>
+                    </div>
+                </div>
+
+                <!-- 계좌번호 -->
+                <div class="form-group">
+                    <div class="form-group-header" onclick="toggleFormGroup(this)">
+                        <h3><i class="fas fa-envelope-open-text"></i> 마음 전하실 곳</h3>
+                        <i class="fas fa-chevron-down chevron"></i>
+                    </div>
+                    <div class="form-group-content">
+                        <p style="font-size: 0.8em; font-weight: bold; margin-bottom: 10px;">[신랑측]</p>
+                        <label>은행명 <input type="text" id="input-groom-bank" value="신한은행"></label>
+                        <label>계좌번호 <input type="text" id="input-groom-acc" value="110-123-456789"></label>
+                        <label>예금주 <input type="text" id="input-groom-acc-name" value="홍길동"></label>
+                        
+                        <p style="font-size: 0.8em; font-weight: bold; margin: 20px 0 10px;">[신부측]</p>
+                        <label>은행명 <input type="text" id="input-bride-bank" value="국민은행"></label>
+                        <label>계좌번호 <input type="text" id="input-bride-acc" value="041-910123-45678"></label>
+                        <label>예금주 <input type="text" id="input-bride-acc-name" value="성춘향"></label>
+                    </div>
                 </div>
 
                 <!-- 장소 -->
                 <div class="form-group">
-                    <h3><i class="fas fa-map-marker-alt"></i> 장소 정보</h3>
-                    <label>예식장 이름 <input type="text" id="input-venue-name" value="웨딩팰리스 그랜드볼룸"></label>
-                    <label>예식장 주소 <input type="text" id="input-venue-address" value="서울특별시 강남구 테헤란로 123"></label>
+                    <div class="form-group-header" onclick="toggleFormGroup(this)">
+                        <h3><i class="fas fa-map-marker-alt"></i> 장소 정보</h3>
+                        <i class="fas fa-chevron-down chevron"></i>
+                    </div>
+                    <div class="form-group-content">
+                        <label>예식장 이름 <input type="text" id="input-venue-name" value="남산골 한옥마을"></label>
+                        <label>예식장 주소 <input type="text" id="input-venue-address" value="서울특별시 중구 퇴계로34길 28"></label>
+                    </div>
                 </div>
             </div>
         </aside>
 
         <!-- 우측: 실시간 미리보기 -->
         <main class="preview-panel">
-            <div class="preview-wrapper">
-                <div class="preview-device">
-                    <!-- 실제 모바일 청첩장 구조 시작 -->
-                    <div class="mobile-container" id="preview-content">
-                        <!-- 메인 커버 -->
-                        <header class="hero section-fade visible">
-                            <div class="hero-image">
-                                <img id="preview-main-photo" src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="웨딩 메인 사진">
-                            </div>
-                            <div class="hero-text">
-                                <p class="hero-date" id="preview-date-text">2024. 10. 26. SAT PM 2:00</p>
-                                <h1 class="hero-names"><span id="preview-groom-name">김철수</span> <span class="heart">♥</span> <span id="preview-bride-name">이영희</span></h1>
-                                <p class="hero-location" id="preview-venue-name">웨딩팰리스 그랜드볼룸</p>
-                            </div>
-                        </header>
+            <div class="preview-device">
+                <div class="mobile-container" id="preview-content">
+                    <!-- 메인 커버 -->
+                    <header class="hero section-fade visible">
+                        <div class="hero-image">
+                            <img id="preview-main-photo" src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" alt="웨딩 메인 사진">
+                        </div>
+                        <div class="hero-text">
+                            <p class="hero-date" id="preview-date-text">2026. 05. 10. SUN PM 12:00</p>
+                            <h1 class="hero-names"><span id="preview-groom-name">홍길동</span> <span class="heart">♥</span> <span id="preview-bride-name">성춘향</span></h1>
+                            <p class="hero-location" id="preview-venue-name">남산골 한옥마을</p>
+                        </div>
+                    </header>
 
-                        <!-- 인사말 -->
-                        <section class="greeting section-fade visible">
-                            <h2 class="section-title">초대합니다</h2>
-                            <div class="greeting-message" id="preview-greeting">
-                                서로가 마주보며 다져온 사랑을<br>
-                                이제 함께 한 곳을 바라보며<br>
-                                걸어갈 수 있는 큰 사랑으로 키우고자 합니다.<br><br>
-                                저희 두 사람이 사랑의 이름으로<br>
-                                지켜나갈 수 있게 앞날을<br>
-                                축복해 주시면 감사하겠습니다.
-                            </div>
-                            
-                            <div class="parents-info">
-                                <p><span id="preview-groom-parents">김길동 · 박순자</span> <span class="relation">의 <span id="preview-groom-relation">장남</span></span> <strong class="groom-name-small">철수</strong></p>
-                                <p><span id="preview-bride-parents">이몽룡 · 성춘향</span> <span class="relation">의 <span id="preview-bride-relation">장녀</span></span> <strong class="bride-name-small">영희</strong></p>
-                            </div>
-                        </section>
+                    <!-- 인사말 -->
+                    <section class="greeting section-fade">
+                        <h2 class="section-title">초대합니다</h2>
+                        <div class="greeting-message" id="preview-greeting">
+                            서로가 마주보며 다져온 사랑을<br>
+                            이제 함께 한 곳을 바라보며<br>
+                            걸어갈 수 있는 큰 사랑으로 키우고자 합니다.<br><br>
+                            저희 두 사람이 사랑의 이름으로<br>
+                            지켜나갈 수 있게 앞날을<br>
+                            축복해 주시면 감사하겠습니다.
+                        </div>
+                        
+                        <div class="parents-info">
+                            <p><span id="preview-groom-parents">홍판서 · 김씨부인</span> <span class="relation">의 <span id="preview-groom-relation">장남</span></span> <strong class="groom-name-small">길동</strong></p>
+                            <p><span id="preview-bride-parents">성참판 · 월매</span> <span class="relation">의 <span id="preview-bride-relation">장녀</span></span> <strong class="bride-name-small">춘향</strong></p>
+                        </div>
+                    </section>
 
-                        <!-- 디데이 -->
-                        <section class="calendar-section section-fade visible">
-                            <h2 class="section-title">예식일</h2>
-                            <div class="d-day-counter">
-                                <span class="groom-name-small">철수</span> <span class="heart">♥</span> <span class="bride-name-small">영희</span>의 결혼식이 <span id="preview-dday" class="highlight"></span>
+                    <!-- 갤러리 섹션 -->
+                    <section class="gallery-section section-fade">
+                        <h2 class="section-title">갤러리</h2>
+                        <div class="gallery-grid" id="preview-gallery">
+                            <!-- JS로 채워짐 -->
+                        </div>
+                    </section>
+
+                    <!-- 디데이 -->
+                    <section class="calendar-section section-fade">
+                        <h2 class="section-title">예식일</h2>
+                        <div class="d-day-counter">
+                            <span class="groom-name-small">길동</span> <span class="heart">♥</span> <span class="bride-name-small">춘향</span>의 결혼식이 <span id="preview-dday" class="highlight"></span>
+                        </div>
+                    </section>
+
+                    <!-- 마음 전하실 곳 -->
+                    <section class="accounts section-fade">
+                        <h2 class="section-title">마음 전하실 곳</h2>
+                        <div class="account-box">
+                            <div class="acc-group">
+                                <div class="acc-header" onclick="toggleAcc(this)">
+                                    신랑측 계좌번호 <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="acc-content">
+                                    <div class="acc-row">
+                                        <div class="acc-info">
+                                            <span id="preview-groom-bank">신한은행</span>
+                                            <b id="preview-groom-acc">110-123-456789</b> (예금주: <span id="preview-groom-acc-name">홍길동</span>)
+                                        </div>
+                                        <button class="copy-btn" onclick="copyText('110-123-456789')">복사</button>
+                                    </div>
+                                </div>
                             </div>
-                        </section>
+                            <div class="acc-group">
+                                <div class="acc-header" onclick="toggleAcc(this)">
+                                    신부측 계좌번호 <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="acc-content">
+                                    <div class="acc-row">
+                                        <div class="acc-info">
+                                            <span id="preview-bride-bank">국민은행</span>
+                                            <b id="preview-bride-acc">041-910123-45678</b> (예금주: <span id="preview-bride-acc-name">성춘향</span>)
+                                        </div>
+                                        <button class="copy-btn" onclick="copyText('041-910123-45678')">복사</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
 
-                        <!-- 오시는 길 -->
-                        <section class="location section-fade visible">
-                            <h2 class="section-title">오시는 길</h2>
-                            <p class="venue-name" id="preview-venue-name-2">웨딩팰리스 그랜드볼룸</p>
-                            <p class="venue-address" id="preview-venue-address">서울특별시 강남구 테헤란로 123</p>
-                        </section>
+                    <!-- 오시는 길 -->
+                    <section class="location section-fade">
+                        <h2 class="section-title">오시는 길</h2>
+                        <p class="venue-name" id="preview-venue-name-2">남산골 한옥마을</p>
+                        <p class="venue-address" id="preview-venue-address">서울특별시 중구 퇴계로34길 28</p>
+                    </section>
 
-                        <footer class="footer">
-                            <p>Created by <span class="heart">♥</span> <span class="groom-name-small">철수</span> & <span class="bride-name-small">영희</span></p>
-                        </footer>
-                    </div>
-                    <!-- 모바일 청첩장 구조 끝 -->
+                    <!-- 방명록 -->
+                    <section class="guestbook section-fade">
+                        <h2 class="section-title">방명록</h2>
+                        <div class="guest-form">
+                            <input type="text" id="guest-name" placeholder="이름">
+                            <textarea id="guest-msg" placeholder="축하 메시지를 남겨주세요" rows="3"></textarea>
+                            <button class="btn-submit" onclick="addGuest()">방명록 남기기</button>
+                        </div>
+                        <div class="guest-list" id="preview-guest-list">
+                            <div class="guest-item">
+                                <div class="guest-meta"><span>이몽룡</span> <span>2026.04.23</span></div>
+                                <div class="guest-body">결혼을 진심으로 축하드립니다! 행복하게 잘 사세요!</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <footer class="footer">
+                        <p>Created with <span class="heart">♥</span> <span class="groom-name-small">길동</span> & <span class="bride-name-small">춘향</span></p>
+                    </footer>
                 </div>
             </div>
         </main>
@@ -135,10 +256,13 @@
     <div id="export-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
-            <h2>청첩장 코드가 완성되었습니다!</h2>
-            <p>아래 코드를 복사하여 index.html 파일로 사용하세요.</p>
+            <h2><i class="fas fa-check-circle"></i> 청첩장이 완성되었습니다!</h2>
+            <p>아래 코드를 복사하여 index.html 파일로 저장하세요.</p>
             <textarea id="export-code" readonly></textarea>
-            <button class="primary-btn" onclick="copyExportCode()"><i class="fas fa-copy"></i> 코드 복사하기</button>
+            <div style="display: flex; gap: 10px;">
+                <button class="primary-btn" onclick="copyExportCode()" style="flex: 1;"><i class="fas fa-copy"></i> 코드 복사하기</button>
+                <button class="primary-btn" onclick="closeModal()" style="flex: 1; background: #666;"><i class="fas fa-times"></i> 닫기</button>
+            </div>
         </div>
     </div>
 

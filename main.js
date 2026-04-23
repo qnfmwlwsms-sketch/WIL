@@ -1,251 +1,308 @@
-// 갤러리 컴포넌트 (웹 컴포넌트)
-class PhotoGallery extends HTMLElement {
-    constructor() {
-      super();
-      const shadow = this.attachShadow({ mode: 'open' });
-      const wrapper = document.createElement('div');
-      wrapper.setAttribute('class', 'gallery-wrapper');
-      const style = document.createElement('style');
-      style.textContent = `
-        .gallery-wrapper {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-          gap: 10px;
-          padding: 10px 0;
-        }
-        img {
-          width: 100%;
-          aspect-ratio: 1 / 1;
-          object-fit: cover;
-          border-radius: 8px;
-          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-          transition: transform 0.2s;
-        }
-        img:hover { transform: scale(1.03); }
-      `;
-  
-      const photos = [
-        'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=400&q=80'
-      ];
-  
-      photos.forEach(src => {
-        const img = document.createElement('img');
-        img.src = src;
-        img.alt = '우리의 아름다운 순간';
-        img.loading = 'lazy';
-        wrapper.appendChild(img);
-      });
-      shadow.appendChild(style);
-      shadow.appendChild(wrapper);
+/**
+ * 모바일 청첩장 스튜디오 메인 로직
+ */
+
+// 1. 에디터 아코디언 토글
+function toggleFormGroup(header) {
+    const group = header.parentElement;
+    const isActive = group.classList.contains('active');
+    
+    // 다른 모든 그룹 닫기 (선택 사항 - 여기선 하나만 열리게 함)
+    document.querySelectorAll('.form-group').forEach(g => g.classList.remove('active'));
+    
+    if (!isActive) {
+        group.classList.add('active');
     }
-  }
-  customElements.define('photo-gallery', PhotoGallery);
-  
-  // D-Day 계산기
-  function calculateDday() {
-      const inputDatetime = document.getElementById('input-datetime');
-      if (!inputDatetime) return;
+}
 
-      const targetDate = new Date(inputDatetime.value);
-      const today = new Date();
-      
-      targetDate.setHours(0,0,0,0);
-      today.setHours(0,0,0,0);
+// 2. 미리보기 아코디언 토글 (계좌번호 등)
+function toggleAcc(header) {
+    const content = header.nextElementSibling;
+    const icon = header.querySelector('i');
+    
+    if (content.style.display === 'block') {
+        content.style.display = 'none';
+        icon.style.transform = 'rotate(0deg)';
+    } else {
+        content.style.display = 'block';
+        icon.style.transform = 'rotate(180deg)';
+    }
+}
 
-      const diffTime = targetDate.getTime() - today.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
-      const dDayText = document.getElementById('preview-dday');
-      if(dDayText) {
-          if (diffDays > 0) {
-              dDayText.innerText = `D-${diffDays} 남았습니다.`;
-          } else if (diffDays === 0) {
-              dDayText.innerText = `오늘입니다!`;
-          } else {
-              dDayText.innerText = `D+${Math.abs(diffDays)} 지났습니다.`;
-          }
-      }
-  }
+// 3. 갤러리 입력 칸 추가/삭제
+function addGalleryInput() {
+    const container = document.getElementById('gallery-inputs');
+    const btn = container.querySelector('.btn-add-item');
+    
+    const row = document.createElement('div');
+    row.className = 'item-row';
+    row.innerHTML = `
+        <input type="url" class="gallery-url" placeholder="https://..." oninput="updatePreview()">
+        <button class="btn-remove" onclick="removeItem(this)">×</button>
+    `;
+    
+    container.insertBefore(row, btn);
+    updatePreview();
+}
 
-  // 실시간 미리보기 업데이트
-  function updatePreview() {
-      // 1. 기본 텍스트 필드 업데이트
-      const mappings = [
-          { input: 'input-groom-name', preview: 'preview-groom-name', type: 'text' },
-          { input: 'input-bride-name', preview: 'preview-bride-name', type: 'text' },
-          { input: 'input-date-text', preview: 'preview-date-text', type: 'text' },
-          { input: 'input-venue-name', preview: 'preview-venue-name', type: 'text' },
-          { input: 'input-venue-address', preview: 'preview-venue-address', type: 'text' },
-          { input: 'input-groom-parents', preview: 'preview-groom-parents', type: 'text' },
-          { input: 'input-groom-relation', preview: 'preview-groom-relation', type: 'text' },
-          { input: 'input-bride-parents', preview: 'preview-bride-parents', type: 'text' },
-          { input: 'input-bride-relation', preview: 'preview-bride-relation', type: 'text' },
-          { input: 'input-greeting', preview: 'preview-greeting', type: 'text', newline: true }
-      ];
+function removeItem(btn) {
+    btn.parentElement.remove();
+    updatePreview();
+}
 
-      mappings.forEach(m => {
-          const inputEl = document.getElementById(m.input);
-          const previewEl = document.getElementById(m.preview);
-          if (inputEl && previewEl) {
-              let val = inputEl.value;
-              if (m.newline) {
-                  val = val.replace(/\n/g, '<br>');
-                  previewEl.innerHTML = val;
-              } else {
-                  previewEl.innerText = val;
-              }
-          }
-      });
+// 4. 실시간 미리보기 업데이트
+function updatePreview() {
+    // 기본 텍스트 필드 맵핑
+    const mappings = [
+        { id: 'input-groom-name', target: 'preview-groom-name' },
+        { id: 'input-bride-name', target: 'preview-bride-name' },
+        { id: 'input-date-text', target: 'preview-date-text' },
+        { id: 'input-venue-name', target: 'preview-venue-name' },
+        { id: 'input-venue-name', target: 'preview-venue-name-2' },
+        { id: 'input-venue-address', target: 'preview-venue-address' },
+        { id: 'input-groom-parents', target: 'preview-groom-parents' },
+        { id: 'input-groom-relation', target: 'preview-groom-relation' },
+        { id: 'input-bride-parents', target: 'preview-bride-parents' },
+        { id: 'input-bride-relation', target: 'preview-bride-relation' },
+        { id: 'input-groom-bank', target: 'preview-groom-bank' },
+        { id: 'input-groom-acc', target: 'preview-groom-acc' },
+        { id: 'input-groom-acc-name', target: 'preview-groom-acc-name' },
+        { id: 'input-bride-bank', target: 'preview-bride-bank' },
+        { id: 'input-bride-acc', target: 'preview-bride-acc' },
+        { id: 'input-bride-acc-name', target: 'preview-bride-acc-name' }
+    ];
 
-      // 2. 추가적인 업데이트
-      const venueName2 = document.getElementById('preview-venue-name-2');
-      if (venueName2) venueName2.innerText = document.getElementById('input-venue-name').value;
+    mappings.forEach(m => {
+        const input = document.getElementById(m.id);
+        const target = document.getElementById(m.target);
+        if (input && target) target.innerText = input.value;
+    });
 
-      // 3. 이름 일괄 업데이트 (모든 groom-name-small, bride-name-small 클래스)
-      const groomName = document.getElementById('input-groom-name').value;
-      const brideName = document.getElementById('input-bride-name').value;
-      
-      document.querySelectorAll('.groom-name-small').forEach(el => el.innerText = groomName);
-      document.querySelectorAll('.bride-name-small').forEach(el => el.innerText = brideName);
+    // 메인 사진
+    const mainPhotoUrl = document.getElementById('input-main-photo-url').value;
+    const mainPhotoPreview = document.getElementById('preview-main-photo');
+    if (mainPhotoPreview) mainPhotoPreview.src = mainPhotoUrl;
 
-      // 4. D-Day 업데이트
-      calculateDday();
-  }
+    // 인사말 (줄바꿈 처리)
+    const greeting = document.getElementById('input-greeting').value;
+    const greetingPreview = document.getElementById('preview-greeting');
+    if (greetingPreview) greetingPreview.innerHTML = greeting.replace(/\n/g, '<br>');
 
-  // 사진 파일 처리
-  function handlePhotoUpload(e) {
-      const file = e.target.files[0];
-      if (file) {
-          const reader = new FileReader();
-          reader.onload = function(event) {
-              const previewImg = document.getElementById('preview-main-photo');
-              if (previewImg) {
-                  previewImg.src = event.target.result;
-              }
-          };
-          reader.readAsDataURL(file);
-      }
-  }
+    // 소제목 이름들 (길동, 춘향 등 - 마지막 글자만 따거나 전체 이름)
+    const gName = document.getElementById('input-groom-name').value;
+    const bName = document.getElementById('input-bride-name').value;
+    // 성을 뗀 이름만 표시 (보통 2자 이상이면 성을 뗌)
+    const gShort = gName.length > 1 ? gName.substring(1) : gName;
+    const bShort = bName.length > 1 ? bName.substring(1) : bName;
 
-  // 스크롤 애니메이션 설정
-  function setupScrollAnimation() {
-      const observer = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                  entry.target.classList.add('visible');
-              }
-          });
-      }, { threshold: 0.1 });
+    document.querySelectorAll('.groom-name-small').forEach(el => el.innerText = gShort);
+    document.querySelectorAll('.bride-name-small').forEach(el => el.innerText = bShort);
 
-      document.querySelectorAll('.section-fade').forEach(section => {
-          observer.observe(section);
-      });
-  }
+    // 갤러리 업데이트
+    updateGalleryPreview();
+    
+    // D-Day 업데이트
+    calculateDday();
+}
 
-  // 모달 제어
-  function showModal() {
-      const modal = document.getElementById('export-modal');
-      const exportTextarea = document.getElementById('export-code');
-      
-      const previewContent = document.getElementById('preview-content').innerHTML;
-      
-      const fullHTML = `<!DOCTYPE html>
+function updateGalleryPreview() {
+    const urls = Array.from(document.querySelectorAll('.gallery-url')).map(input => input.value).filter(v => v);
+    const galleryContainer = document.getElementById('preview-gallery');
+    if (!galleryContainer) return;
+
+    galleryContainer.innerHTML = '';
+    urls.forEach(url => {
+        const item = document.createElement('div');
+        item.className = 'gallery-item';
+        item.innerHTML = `<img src="${url}" alt="갤러리 사진" loading="lazy">`;
+        galleryContainer.appendChild(item);
+    });
+}
+
+function calculateDday() {
+    const dateInput = document.getElementById('input-datetime').value;
+    if (!dateInput) return;
+
+    const targetDate = new Date(dateInput);
+    const today = new Date();
+    targetDate.setHours(0,0,0,0);
+    today.setHours(0,0,0,0);
+
+    const diff = targetDate.getTime() - today.getTime();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    
+    const dDayText = document.getElementById('preview-dday');
+    if (!dDayText) return;
+
+    if (days > 0) dDayText.innerText = `D-${days} 남았습니다.`;
+    else if (days === 0) dDayText.innerText = `오늘입니다!`;
+    else dDayText.innerText = `D+${Math.abs(days)} 지났습니다.`;
+}
+
+// 5. 방명록 시뮬레이션
+function addGuest() {
+    const name = document.getElementById('guest-name').value;
+    const msg = document.getElementById('guest-msg').value;
+    
+    if (!name || !msg) return alert('이름과 메시지를 입력해주세요.');
+
+    const list = document.getElementById('preview-guest-list');
+    const date = new Date().toISOString().split('T')[0].replace(/-/g, '.');
+    
+    const item = document.createElement('div');
+    item.className = 'guest-item';
+    item.innerHTML = `
+        <div class="guest-meta"><span>${escapeHTML(name)}</span> <span>${date}</span></div>
+        <div class="guest-body">${escapeHTML(msg)}</div>
+    `;
+    
+    list.prepend(item);
+    document.getElementById('guest-name').value = '';
+    document.getElementById('guest-msg').value = '';
+}
+
+function escapeHTML(str) {
+    return str.replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[m]));
+}
+
+// 6. 텍스트 복사
+function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        alert('계좌번호가 복사되었습니다.');
+    });
+}
+
+// 7. 내보내기 모달 제어
+function showModal() {
+    const modal = document.getElementById('export-modal');
+    const textarea = document.getElementById('export-code');
+    
+    const content = document.getElementById('preview-content').innerHTML;
+    const styles = document.querySelector('style') ? document.querySelector('style').innerHTML : '';
+    const mainStyles = Array.from(document.styleSheets[0].cssRules).map(rule => rule.cssText).join('\n');
+
+    const gName = document.getElementById('input-groom-name').value;
+    const bName = document.getElementById('input-bride-name').value;
+
+    const fullHTML = `<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${document.getElementById('input-groom-name').value} & ${document.getElementById('input-bride-name').value} 결혼식에 초대합니다</title>
+    <title>${gName} & ${bName} 결혼식에 초대합니다</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --bg-color: #FDF5E6; --text-color: #333; --primary-color: #DAA520; --secondary-color: #8B7355; }
-        body { font-family: 'Noto Sans KR', 'Nanum Myeongjo', serif; background-color: #F8F9FA; color: var(--text-color); margin: 0; line-height: 1.6; }
-        .mobile-container { max-width: 500px; margin: 0 auto; background-color: var(--bg-color); min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-        h1, h2, .hero-names, .section-title { font-family: 'Nanum Myeongjo', serif; font-weight: 700; }
-        section { padding: 60px 20px; border-bottom: 1px solid #e0d8c8; text-align: center; }
-        .section-title { font-size: 1.4em; color: var(--primary-color); margin-bottom: 30px; letter-spacing: 0.1em; }
-        .heart { color: #e25555; font-size: 0.8em; margin: 0 5px; }
-        .hero { position: relative; text-align: center; padding-bottom: 40px; border-bottom: 1px solid #e0d8c8; }
-        .hero-image { width: 100%; height: 60vh; overflow: hidden; }
-        .hero-image img { width: 100%; height: 100%; object-fit: cover; }
-        .hero-text { padding: 30px 20px 0; }
-        .hero-date { font-size: 0.8em; color: var(--secondary-color); letter-spacing: 0.1em; }
-        .hero-names { font-size: 2.2em; margin: 15px 0; }
-        .hero-location { font-size: 0.9em; }
-        .greeting-message { line-height: 1.8; font-size: 0.95em; white-space: pre-line; }
-        .parents-info { margin-top: 40px; }
-        .parents-info .relation { font-size: 0.8em; color: var(--secondary-color); margin: 0 5px; }
-        .highlight { color: var(--primary-color); font-weight: bold; }
-        .footer { padding: 40px 20px; text-align: center; font-size: 0.8em; color: var(--secondary-color); background: #fff; }
-        .section-fade { opacity: 0; transform: translateY(20px); transition: all 0.8s ease-out; }
-        .section-fade.visible { opacity: 1; transform: translateY(0); }
+        ${mainStyles}
+        /* 추가 조정 스타일 */
+        body { background: #fff; height: auto; overflow: auto; }
+        .mobile-container { width: 100%; max-width: 500px; margin: 0 auto; height: auto; border-radius: 0; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
     <div class="mobile-container">
-        ${previewContent}
+        ${content}
     </div>
     <script>
+        // 스크롤 애니메이션
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) entry.target.classList.add('visible');
             });
         }, { threshold: 0.1 });
         document.querySelectorAll('.section-fade').forEach(s => observer.observe(s));
+
+        // 아코디언
+        function toggleAcc(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('i');
+            if (content.style.display === 'block') {
+                content.style.display = 'none';
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.display = 'block';
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // 복사
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => alert('복사되었습니다.'));
+        }
+
+        // 방명록 (추출본은 로컬스토리지 활용 데모)
+        function addGuest() {
+            const name = document.getElementById('guest-name').value;
+            const msg = document.getElementById('guest-msg').value;
+            if (!name || !msg) return alert('입력해주세요.');
+            const list = document.getElementById('preview-guest-list');
+            const date = new Date().toISOString().split('T')[0];
+            const item = document.createElement('div');
+            item.className = 'guest-item';
+            item.innerHTML = '<div class="guest-meta"><span>'+name+'</span> <span>'+date+'</span></div><div class="guest-body">'+msg+'</div>';
+            list.prepend(item);
+            document.getElementById('guest-name').value = '';
+            document.getElementById('guest-msg').value = '';
+        }
     </script>
 </body>
 </html>`;
 
-      exportTextarea.value = fullHTML;
-      modal.style.display = 'block';
-  }
+    textarea.value = fullHTML;
+    modal.style.display = 'block';
+}
 
-  function closeModal() {
-      document.getElementById('export-modal').style.display = 'none';
-  }
+function closeModal() {
+    document.getElementById('export-modal').style.display = 'none';
+}
 
-  function copyExportCode() {
-      const textarea = document.getElementById('export-code');
-      textarea.select();
-      document.execCommand('copy');
-      alert('코드가 클립보드에 복사되었습니다!');
-  }
+function copyExportCode() {
+    const textarea = document.getElementById('export-code');
+    textarea.select();
+    document.execCommand('copy');
+    alert('코드가 복사되었습니다!');
+}
 
-  // 초기화 및 이벤트 바인딩
-  document.addEventListener('DOMContentLoaded', () => {
-      const inputs = [
-          'input-groom-name', 'input-bride-name',
-          'input-datetime', 'input-date-text', 'input-greeting',
-          'input-groom-parents', 'input-groom-relation',
-          'input-bride-parents', 'input-bride-relation',
-          'input-venue-name', 'input-venue-address'
-      ];
+// 8. Intersection Observer (스크롤 애니메이션)
+function setupScrollAnimation() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
 
-      inputs.forEach(id => {
-          const el = document.getElementById(id);
-          if (el) {
-              el.addEventListener('input', updatePreview);
-          }
-      });
+    document.querySelectorAll('.section-fade').forEach(section => {
+        observer.observe(section);
+    });
+}
 
-      // 사진 업로드 이벤트
-      const photoInput = document.getElementById('input-main-photo');
-      if (photoInput) {
-          photoInput.addEventListener('change', handlePhotoUpload);
-      }
+// 초기화
+document.addEventListener('DOMContentLoaded', () => {
+    // 모든 input에 이벤트 바인딩
+    document.querySelectorAll('input, textarea').forEach(el => {
+        el.addEventListener('input', updatePreview);
+    });
 
-      const exportBtn = document.getElementById('export-btn');
-      if (exportBtn) exportBtn.addEventListener('click', showModal);
+    const exportBtn = document.getElementById('export-btn');
+    if (exportBtn) exportBtn.addEventListener('click', showModal);
 
-      window.closeModal = closeModal;
-      window.copyExportCode = copyExportCode;
+    // 글로벌 함수 등록
+    window.toggleFormGroup = toggleFormGroup;
+    window.toggleAcc = toggleAcc;
+    window.addGalleryInput = addGalleryInput;
+    window.removeItem = removeItem;
+    window.addGuest = addGuest;
+    window.copyText = copyText;
+    window.closeModal = closeModal;
+    window.copyExportCode = copyExportCode;
+    window.updatePreview = updatePreview;
 
-      updatePreview();
-      setupScrollAnimation();
-  });
+    updatePreview();
+    setupScrollAnimation();
+});
