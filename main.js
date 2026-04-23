@@ -1,204 +1,145 @@
-// 갤러리 컴포넌트
-class PhotoGallery extends HTMLElement {
-    constructor() {
-      super();
-      const shadow = this.attachShadow({ mode: 'open' });
-  
-      const wrapper = document.createElement('div');
-      wrapper.setAttribute('class', 'gallery-wrapper');
-  
-      const style = document.createElement('style');
-      style.textContent = `
-        .gallery-wrapper {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-          gap: 10px;
-          padding: 10px 0;
+// 실시간 미리보기 기능
+const inputs = [
+    { id: 'input-groom-name', previewIds: ['preview-groom-name', 'groom-name-small-0', 'groom-name-small-1', 'groom-name-small-2'] },
+    { id: 'input-bride-name', previewIds: ['preview-bride-name', 'bride-name-small-0', 'bride-name-small-1', 'bride-name-small-2'] },
+    { id: 'input-main-photo', previewId: 'preview-main-photo', attr: 'src' },
+    { id: 'input-date-text', previewId: 'preview-date-text' },
+    { id: 'input-venue-name', previewIds: ['preview-venue-name', 'preview-venue-name-2'] },
+    { id: 'input-venue-address', previewId: 'preview-venue-address' },
+    { id: 'input-greeting', previewId: 'preview-greeting', nl2br: true },
+    { id: 'input-groom-parents', previewId: 'preview-groom-parents' },
+    { id: 'input-groom-relation', previewId: 'preview-groom-relation' },
+    { id: 'input-bride-parents', previewId: 'preview-bride-parents' },
+    { id: 'input-bride-relation', previewId: 'preview-bride-relation' }
+];
+
+function updatePreview() {
+    inputs.forEach(item => {
+        const inputEl = document.getElementById(item.id);
+        if (!inputEl) return;
+
+        const val = inputEl.value;
+
+        if (item.previewIds) {
+            // 여러 곳을 업데이트해야 하는 경우 (예: 이름)
+            item.previewIds.forEach(pId => {
+                const pEl = document.getElementById(pId) || document.querySelector(`.${pId.replace('-0','').replace('-1','').replace('-2','')}`);
+                if (pEl) {
+                    // class 기반 선택 (동적으로 생성된 요소들)
+                    const classEls = document.querySelectorAll(`.${pId.replace('-0','').replace('-1','').replace('-2','')}`);
+                    classEls.forEach(el => el.innerText = val);
+                }
+            });
+        } else if (item.previewId) {
+            const pEl = document.getElementById(item.id.replace('input-', 'preview-'));
+            const targetEl = document.getElementById(item.previewId);
+            if (!targetEl) return;
+
+            if (item.attr === 'src') {
+                targetEl.src = val;
+            } else if (item.nl2br) {
+                targetEl.innerHTML = val.replace(/\n/g, '<br>');
+            } else {
+                targetEl.innerText = val;
+            }
         }
-        img {
-          width: 100%;
-          aspect-ratio: 1 / 1;
-          object-fit: cover;
-          border-radius: 8px;
-          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-          transition: transform 0.2s;
+    });
+
+    calculateDday();
+}
+
+// D-Day 계산기 (에디터용)
+function calculateDday() {
+    const dateVal = document.getElementById('input-datetime').value;
+    if (!dateVal) return;
+
+    const targetDate = new Date(dateVal);
+    const today = new Date();
+    
+    targetDate.setHours(0,0,0,0);
+    today.setHours(0,0,0,0);
+
+    const diffTime = targetDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    const dDayText = document.getElementById('preview-dday');
+    if(dDayText) {
+        if (diffDays > 0) {
+            dDayText.innerText = `D-${diffDays} 남았습니다.`;
+        } else if (diffDays === 0) {
+            dDayText.innerText = `오늘입니다!`;
+        } else {
+            dDayText.innerText = `D+${Math.abs(diffDays)} 지났습니다.`;
         }
-        img:hover {
-            transform: scale(1.03);
-        }
-      `;
-  
-      // 고화질 웨딩 관련 더미 이미지
-      const photos = [
-        'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=400&q=80'
-      ];
-  
-      photos.forEach(src => {
-        const img = document.createElement('img');
-        img.src = src;
-        img.alt = '우리의 아름다운 순간';
-        img.loading = 'lazy';
-        wrapper.appendChild(img);
-      });
-  
-      shadow.appendChild(style);
-      shadow.appendChild(wrapper);
     }
-  }
-  
-  customElements.define('photo-gallery', PhotoGallery);
-  
-  // 계좌번호 복사 기능
-  function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-          alert('계좌번호가 복사되었습니다: ' + text);
-      }).catch(err => {
-          console.error('복사 실패:', err);
-          alert('복사에 실패했습니다. 다시 시도해주세요.');
-      });
-  }
-  
-  // 다크모드 토글 기능
-  function toggleTheme() {
-      const body = document.body;
-      body.classList.toggle('dark-theme');
-      
-      const themeBtn = document.getElementById('theme-toggle');
-      if (body.classList.contains('dark-theme')) {
-          themeBtn.innerHTML = '<i class="fas fa-sun"></i>';
-      } else {
-          themeBtn.innerHTML = '<i class="fas fa-moon"></i>';
-      }
-  }
+}
 
-  // 아코디언 토글 (계좌번호)
-  function toggleAccordion(id) {
-      const content = document.getElementById(id);
-      if (content.style.maxHeight) {
-          content.style.maxHeight = null;
-          content.classList.remove('active');
-      } else {
-          content.classList.add('active');
-          content.style.maxHeight = content.scrollHeight + 20 + "px"; // padding 고려
-      }
-  }
+// 이벤트 리스너 등록
+document.addEventListener('DOMContentLoaded', () => {
+    // 모든 입력창에 input 이벤트 리스너 추가
+    inputs.forEach(item => {
+        const inputEl = document.getElementById(item.id);
+        if (inputEl) {
+            inputEl.addEventListener('input', updatePreview);
+        }
+    });
 
-  // D-Day 계산기
-  function calculateDday() {
-      const targetDate = new Date('2024-10-26T14:00:00'); // 결혼식 날짜
-      const today = new Date();
-      
-      // 시간을 00:00:00으로 맞춰 순수 날짜 차이만 계산
-      targetDate.setHours(0,0,0,0);
-      today.setHours(0,0,0,0);
+    document.getElementById('input-datetime').addEventListener('input', updatePreview);
+    
+    // 초기 실행
+    updatePreview();
 
-      const diffTime = targetDate.getTime() - today.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
-      const dDayText = document.getElementById('d-day-text');
-      if(dDayText) {
-          if (diffDays > 0) {
-              dDayText.innerText = `D-${diffDays} 남았습니다.`;
-          } else if (diffDays === 0) {
-              dDayText.innerText = `오늘입니다!`;
-          } else {
-              dDayText.innerText = `D+${Math.abs(diffDays)} 지났습니다.`;
-          }
-      }
-  }
+    // Export 버튼
+    document.getElementById('export-btn').addEventListener('click', exportInvitation);
+});
 
-  // 방명록 기능 (LocalStorage 사용)
-  function loadGuestbook() {
-      const list = document.getElementById('guestbook-list');
-      if(!list) return;
+// 완성된 HTML 코드 생성 및 모달 표시
+function exportInvitation() {
+    const previewContent = document.getElementById('preview-content').innerHTML;
+    
+    // 외부에 필요한 스타일과 스크립트를 포함한 전체 HTML 템플릿
+    const fullHTML = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${document.getElementById('input-groom-name').value} & ${document.getElementById('input-bride-name').value} 결혼식에 초대합니다</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* 기본 스타일 (style.css의 핵심 내용 추출) */
+        :root { --bg-color: #FDF5E6; --text-color: #333; --primary-color: #DAA520; --secondary-color: #8B7355; }
+        body { font-family: 'Noto Sans KR', 'Nanum Myeongjo', serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; line-height: 1.6; text-align: center; }
+        .mobile-container { max-width: 500px; margin: 0 auto; background-color: var(--bg-color); }
+        h1, h2, .hero-names, .section-title { font-family: 'Nanum Myeongjo', serif; font-weight: 700; }
+        section { padding: 60px 20px; border-bottom: 1px solid #e0d8c8; }
+        .section-title { font-size: 1.4em; color: var(--primary-color); margin-bottom: 30px; letter-spacing: 0.1em; }
+        .hero-image img { width: 100%; height: auto; }
+        .hero-names { font-size: 2.2em; margin: 15px 0; }
+        .heart { color: #e25555; }
+        .highlight { color: var(--primary-color); font-weight: bold; }
+        footer { padding: 40px 20px; font-size: 0.9em; color: var(--secondary-color); }
+    </style>
+</head>
+<body>
+    <div class="mobile-container">
+        ${previewContent}
+    </div>
+</body>
+</html>`;
 
-      const entries = JSON.parse(localStorage.getItem('wedding_guestbook')) || [];
-      list.innerHTML = '';
-      
-      entries.reverse().forEach(entry => {
-          const div = document.createElement('div');
-          div.className = 'guest-entry';
-          div.innerHTML = `
-              <div class="guest-header">
-                  <span class="guest-name">${escapeHTML(entry.name)}</span>
-                  <span class="guest-date">${entry.date}</span>
-              </div>
-              <div class="guest-msg">${escapeHTML(entry.message)}</div>
-          `;
-          list.appendChild(div);
-      });
-  }
+    document.getElementById('export-code').value = fullHTML;
+    document.getElementById('export-modal').style.display = 'block';
+}
 
-  function addGuestbookEntry() {
-      const nameInput = document.getElementById('guest-name');
-      const msgInput = document.getElementById('guest-message');
-      
-      if (!nameInput.value.trim() || !msgInput.value.trim()) {
-          alert('이름과 메시지를 모두 입력해주세요.');
-          return;
-      }
+function closeModal() {
+    document.getElementById('export-modal').style.display = 'none';
+}
 
-      const now = new Date();
-      const dateStr = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
-
-      const newEntry = {
-          name: nameInput.value.trim(),
-          message: msgInput.value.trim(),
-          date: dateStr
-      };
-
-      const entries = JSON.parse(localStorage.getItem('wedding_guestbook')) || [];
-      entries.push(newEntry);
-      localStorage.setItem('wedding_guestbook', JSON.stringify(entries));
-
-      nameInput.value = '';
-      msgInput.value = '';
-      
-      loadGuestbook();
-  }
-
-  // HTML 태그 이스케이프 (XSS 방지)
-  function escapeHTML(str) {
-      return str.replace(/[&<>'"]/g, 
-          tag => ({
-              '&': '&amp;',
-              '<': '&lt;',
-              '>': '&gt;',
-              "'": '&#39;',
-              '"': '&quot;'
-          }[tag] || tag)
-      );
-  }
-
-  // 스크롤 페이드인 애니메이션 (Intersection Observer)
-  function setupScrollAnimation() {
-      const observer = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                  entry.target.classList.add('visible');
-              }
-          });
-      }, { threshold: 0.1 });
-
-      document.querySelectorAll('.section-fade').forEach(section => {
-          observer.observe(section);
-      });
-  }
-
-  // 초기화
-  document.addEventListener('DOMContentLoaded', () => {
-      calculateDday();
-      loadGuestbook();
-      setupScrollAnimation();
-      
-      // 초기 로딩 시 첫 번째 섹션 바로 보이게
-      setTimeout(() => {
-          const firstSection = document.querySelector('.section-fade');
-          if(firstSection) firstSection.classList.add('visible');
-      }, 100);
-  });
+function copyExportCode() {
+    const textArea = document.getElementById('export-code');
+    textArea.select();
+    document.execCommand('copy');
+    alert('코드가 클립보드에 복사되었습니다!');
+}
