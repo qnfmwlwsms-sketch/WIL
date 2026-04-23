@@ -7,7 +7,7 @@ function toggleFormGroup(header) {
     const group = header.parentElement;
     const isActive = group.classList.contains('active');
     
-    // 다른 모든 그룹 닫기 (선택 사항 - 여기선 하나만 열리게 함)
+    // 다른 모든 그룹 닫기
     document.querySelectorAll('.form-group').forEach(g => g.classList.remove('active'));
     
     if (!isActive) {
@@ -37,7 +37,7 @@ function addGalleryInput() {
     const row = document.createElement('div');
     row.className = 'item-row';
     row.innerHTML = `
-        <input type="url" class="gallery-url" placeholder="https://..." oninput="updatePreview()">
+        <input type="file" class="gallery-file" accept="image/*" onchange="updatePreview()">
         <button class="btn-remove" onclick="removeItem(this)">×</button>
     `;
     
@@ -78,20 +78,24 @@ function updatePreview() {
         if (input && target) target.innerText = input.value;
     });
 
-    // 메인 사진
-    const mainPhotoUrl = document.getElementById('input-main-photo-url').value;
-    const mainPhotoPreview = document.getElementById('preview-main-photo');
-    if (mainPhotoPreview) mainPhotoPreview.src = mainPhotoUrl;
+    // 메인 사진 파일 처리
+    const mainPhotoFile = document.getElementById('input-main-photo-file').files[0];
+    if (mainPhotoFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('preview-main-photo').src = e.target.result;
+        };
+        reader.readAsDataURL(mainPhotoFile);
+    }
 
     // 인사말 (줄바꿈 처리)
     const greeting = document.getElementById('input-greeting').value;
     const greetingPreview = document.getElementById('preview-greeting');
     if (greetingPreview) greetingPreview.innerHTML = greeting.replace(/\n/g, '<br>');
 
-    // 소제목 이름들 (길동, 춘향 등 - 마지막 글자만 따거나 전체 이름)
+    // 소제목 이름들
     const gName = document.getElementById('input-groom-name').value;
     const bName = document.getElementById('input-bride-name').value;
-    // 성을 뗀 이름만 표시 (보통 2자 이상이면 성을 뗌)
     const gShort = gName.length > 1 ? gName.substring(1) : gName;
     const bShort = bName.length > 1 ? bName.substring(1) : bName;
 
@@ -106,16 +110,35 @@ function updatePreview() {
 }
 
 function updateGalleryPreview() {
-    const urls = Array.from(document.querySelectorAll('.gallery-url')).map(input => input.value).filter(v => v);
     const galleryContainer = document.getElementById('preview-gallery');
     if (!galleryContainer) return;
 
+    const fileInputs = Array.from(document.querySelectorAll('.gallery-file'));
+    
+    // 기존 미리보기 유지하면서 새로 선택된 것만 업데이트하거나 전체 다시 그리기
+    // 여기서는 전체 다시 그리기로 구현 (순서 유지 위해)
     galleryContainer.innerHTML = '';
-    urls.forEach(url => {
+    
+    fileInputs.forEach((input, index) => {
+        const file = input.files[0];
         const item = document.createElement('div');
         item.className = 'gallery-item';
-        item.innerHTML = `<img src="${url}" alt="갤러리 사진" loading="lazy">`;
+        const img = document.createElement('img');
+        img.alt = "갤러리 사진";
+        img.loading = "lazy";
+        item.appendChild(img);
         galleryContainer.appendChild(item);
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            // 파일이 없는 경우 기본 이미지나 플레이스홀더
+            img.src = "https://via.placeholder.com/150?text=Photo+" + (index + 1);
+        }
     });
 }
 
@@ -180,7 +203,6 @@ function showModal() {
     const textarea = document.getElementById('export-code');
     
     const content = document.getElementById('preview-content').innerHTML;
-    const styles = document.querySelector('style') ? document.querySelector('style').innerHTML : '';
     const mainStyles = Array.from(document.styleSheets[0].cssRules).map(rule => rule.cssText).join('\n');
 
     const gName = document.getElementById('input-groom-name').value;
@@ -198,7 +220,6 @@ function showModal() {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         ${mainStyles}
-        /* 추가 조정 스타일 */
         body { background: #fff; height: auto; overflow: auto; }
         .mobile-container { width: 100%; max-width: 500px; margin: 0 auto; height: auto; border-radius: 0; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
     </style>
@@ -208,7 +229,6 @@ function showModal() {
         ${content}
     </div>
     <script>
-        // 스크롤 애니메이션
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) entry.target.classList.add('visible');
@@ -216,7 +236,6 @@ function showModal() {
         }, { threshold: 0.1 });
         document.querySelectorAll('.section-fade').forEach(s => observer.observe(s));
 
-        // 아코디언
         function toggleAcc(header) {
             const content = header.nextElementSibling;
             const icon = header.querySelector('i');
@@ -229,12 +248,10 @@ function showModal() {
             }
         }
 
-        // 복사
         function copyText(text) {
             navigator.clipboard.writeText(text).then(() => alert('복사되었습니다.'));
         }
 
-        // 방명록 (추출본은 로컬스토리지 활용 데모)
         function addGuest() {
             const name = document.getElementById('guest-name').value;
             const msg = document.getElementById('guest-msg').value;
@@ -284,8 +301,8 @@ function setupScrollAnimation() {
 
 // 초기화
 document.addEventListener('DOMContentLoaded', () => {
-    // 모든 input에 이벤트 바인딩
-    document.querySelectorAll('input, textarea').forEach(el => {
+    // 텍스트 input에 이벤트 바인딩
+    document.querySelectorAll('input[type="text"], input[type="datetime-local"], textarea').forEach(el => {
         el.addEventListener('input', updatePreview);
     });
 

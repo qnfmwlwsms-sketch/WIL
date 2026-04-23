@@ -29,8 +29,8 @@
                     <div class="form-group-content">
                         <label>신랑 이름 <input type="text" id="input-groom-name" value="이몽룡"></label>
                         <label>신부 이름 <input type="text" id="input-bride-name" value="성춘향"></label>
-                        <label>메인 사진 URL <input type="url" id="input-main-photo-url" value="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80"></label>
-                        <p style="font-size: 0.75em; color: #999; margin-top: 5px;">* 디자인 중심형에서는 고화질 외부 링크를 권장합니다.</p>
+                        <label>메인 사진 업로드 <input type="file" id="input-main-photo-file" accept="image/*"></label>
+                        <p style="font-size: 0.75em; color: #999; margin-top: 5px;">* 직접 업로드한 이미지가 청첩장에 포함됩니다.</p>
                     </div>
                 </div>
 
@@ -88,15 +88,7 @@
                     </div>
                     <div class="form-group-content" id="gallery-inputs">
                         <div class="item-row">
-                            <input type="url" class="gallery-url" value="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=400&q=80">
-                            <button class="btn-remove" onclick="removeItem(this)">×</button>
-                        </div>
-                        <div class="item-row">
-                            <input type="url" class="gallery-url" value="https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=400&q=80">
-                            <button class="btn-remove" onclick="removeItem(this)">×</button>
-                        </div>
-                        <div class="item-row">
-                            <input type="url" class="gallery-url" value="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=400&q=80">
+                            <input type="file" class="gallery-file" accept="image/*" onchange="updatePreview()">
                             <button class="btn-remove" onclick="removeItem(this)">×</button>
                         </div>
                         <button class="btn-add-item" onclick="addGalleryInput()"><i class="fas fa-plus"></i> 사진 추가</button>
